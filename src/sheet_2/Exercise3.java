@@ -41,6 +41,7 @@ public class Exercise3 extends GLCanvas implements GLEventListener {
         gl.glColor3f(red,green,blue);
         gl.glVertex3f(0f,0f,0f);
         gl.glVertex3f(x*10f,y*10f,z*10f);
+        gl.glColor3f(255,255,255);
         gl.glEnd();
     }
 
@@ -70,7 +71,7 @@ public class Exercise3 extends GLCanvas implements GLEventListener {
                 System.exit(0);
             }
         });
-        frame.setSize(640, 480);
+        frame.setSize(640, 640);
         frame.setVisible(true);
         canvas.requestFocus();
     }
