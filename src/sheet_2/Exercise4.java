@@ -6,6 +6,7 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.gl2.GLUT;
+import javafx.geometry.Point3D;
 import javafx.scene.input.KeyCode;
 
 import java.awt.*;
@@ -14,26 +15,38 @@ import java.util.Random;
 
 
 public class Exercise4 extends GLCanvas implements GLEventListener {
+
     private int n = 2;
     private float cubeSize = 2.0f;
+    private Point3D eyePoint;
+    private boolean coordinateSystemEnabled = true;
+
+    private GL2 gl;
+    private GLU glu;
+
 
     public Exercise4() {
+        eyePoint = new Point3D(5, 5, 5);
+
         this.addGLEventListener(this);
         this.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if(e.getKeyChar() == '+') {
+                if (e.getKeyChar() == '+') {
                     n += 1;
                 } else if (e.getKeyChar() == '-') {
                     n -= 1;
+                } else if (e.getKeyChar() == 'a') {
+
+                } else if (e.getKeyChar() == 'd') {
+
+                } else if (e.getKeyChar() == ' ') {
+                    toggleCoordinateSystem();
                 }
                 display();
             }
         });
     }
-
-    private GL2 gl;
-    private GLU glu;
 
     public void display(GLAutoDrawable gLDrawable) {
         gl = gLDrawable.getGL().getGL2();
@@ -41,15 +54,33 @@ public class Exercise4 extends GLCanvas implements GLEventListener {
         GLUT glut = new GLUT();
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT);
         gl.glLoadIdentity();
-        glu.gluLookAt(5, 5, 5, 0, 0, 0, 0, 1, 0);
-        //Drahtwürfel zeichnen
-        gl.glColor3f(1f,1f,1f);
+
+        this.lookAt();
+        gl.glColor3f(1f, 1f, 1f);
         glut.glutWireCube(this.cubeSize);
-        this.drawAxis(1, 0, 0, 255, 0, 0);
-        this.drawAxis(0, 1, 0, 0, 255, 0);
-        this.drawAxis(0, 0, 1, 0, 0, 255);
+
+        this.drawCoordinateSystem();
+
         this.drawOtherCubes(glut);
         gl.glFlush();
+    }
+
+    private void drawCoordinateSystem() {
+        if (this.coordinateSystemEnabled) {
+            this.drawAxis(1, 0, 0, 255, 0, 0);
+            this.drawAxis(0, 1, 0, 0, 255, 0);
+            this.drawAxis(0, 0, 1, 0, 0, 255);
+        }
+    }
+
+    private void toggleCoordinateSystem() {
+        this.coordinateSystemEnabled = !this.coordinateSystemEnabled;
+    }
+
+
+    private void lookAt() {
+        this.glu.gluLookAt(eyePoint.getX(), eyePoint.getY(), eyePoint.getZ(),
+                0, 0, 0, 0, 1, 0);
     }
 
     private void setColor(int x, int y, int z) {
