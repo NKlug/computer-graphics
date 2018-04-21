@@ -129,15 +129,13 @@ public class Exercise4 extends GLCanvas implements GLEventListener {
             for (int y = 0; y < n; ++y) {
                 for (int z = 0; z < n; ++z) {
                     this.setColor(x, y, z);
+                    gl.glPushMatrix();
                     gl.glTranslatef(
                             -cubeSize / 2 + newCubeSize / 2 + x * newCubeSize,
                             -cubeSize / 2 + newCubeSize / 2 + y * newCubeSize,
                             -cubeSize / 2 + newCubeSize / 2 + z * newCubeSize);
                     glut.glutSolidCube(newCubeSize);
-                    gl.glTranslatef(
-                            cubeSize / 2 - newCubeSize / 2 - x * newCubeSize,
-                            cubeSize / 2 - newCubeSize / 2 - y * newCubeSize,
-                            cubeSize / 2 - newCubeSize / 2 - z * newCubeSize);
+                    gl.glPopMatrix();
                 }
             }
 
