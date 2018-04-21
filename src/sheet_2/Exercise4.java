@@ -76,7 +76,8 @@ public class Exercise4 extends GLCanvas implements GLEventListener {
         gl = gLDrawable.getGL().getGL2();
         glu = new GLU();
         GLUT glut = new GLUT();
-        gl.glClear(GL2.GL_COLOR_BUFFER_BIT);
+        gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+        gl.glEnable(GL2.GL_DEPTH_TEST);
         gl.glLoadIdentity();
 
         gl.glColor3f(1f, 1f, 1f);
