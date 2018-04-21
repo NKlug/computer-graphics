@@ -22,7 +22,12 @@ public class Exercise4 extends GLCanvas implements GLEventListener {
      * toggleCoordinateSystem       Space
      * increase n                   +
      * decrease n                   -
-     *
+     * increase X angle             a
+     * decrease X angle             q
+     * increase Y angle             s
+     * decrease Y angle             w
+     * increase Z angle             d
+     * decrease Z angle             e
      */
 
 
