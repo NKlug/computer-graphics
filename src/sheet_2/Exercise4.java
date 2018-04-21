@@ -16,18 +16,28 @@ import java.util.Random;
 
 public class Exercise4 extends GLCanvas implements GLEventListener {
 
+    /**
+     * KEYMAP:
+     *
+     * toggleCoordinateSystem       Space
+     * increase n                   +
+     * decrease n                   -
+     *
+     */
+
+
     private int n = 2;
     private float cubeSize = 2.0f;
-    private Point3D eyePoint;
     private boolean coordinateSystemEnabled = true;
+    private int angleX = 0;
+    private int angleY = 0;
+    private int angleZ = 0;
 
     private GL2 gl;
     private GLU glu;
 
 
     public Exercise4() {
-        eyePoint = new Point3D(5, 5, 5);
-
         this.addGLEventListener(this);
         this.addKeyListener(new KeyAdapter() {
             @Override
@@ -35,11 +45,20 @@ public class Exercise4 extends GLCanvas implements GLEventListener {
                 if (e.getKeyChar() == '+') {
                     n += 1;
                 } else if (e.getKeyChar() == '-') {
-                    n -= 1;
+                    if (n > 0)
+                        n -= 1;
                 } else if (e.getKeyChar() == 'a') {
-
+                    angleX += 2;
+                } else if (e.getKeyChar() == 'q') {
+                    angleX -=2;
+                } else if (e.getKeyChar() == 'w') {
+                    angleY -= 2;
+                } else if (e.getKeyChar() == 's') {
+                    angleY += 2;
+                } else if (e.getKeyChar() == 'e') {
+                    angleZ -= 2;
                 } else if (e.getKeyChar() == 'd') {
-
+                    angleZ += 2;
                 } else if (e.getKeyChar() == ' ') {
                     toggleCoordinateSystem();
                 }
@@ -55,15 +74,27 @@ public class Exercise4 extends GLCanvas implements GLEventListener {
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT);
         gl.glLoadIdentity();
 
-        this.lookAt();
         gl.glColor3f(1f, 1f, 1f);
-        glut.glutWireCube(this.cubeSize);
+        glu.gluLookAt(3, 4, 5, 0, 0, 0, 0, 0, 1);
+
+        this.drawRotatedCubes(glut);
 
         this.drawCoordinateSystem();
 
-        this.drawOtherCubes(glut);
         gl.glFlush();
     }
+
+    private void drawRotatedCubes(GLUT glut) {
+        gl.glPushMatrix();
+        gl.glRotatef(angleX, 1, 0, 0);
+        gl.glRotatef(angleY, 0, 1, 0);
+        gl.glRotatef(angleZ, 0, 0, 1);
+        glut.glutWireCube(this.cubeSize);
+        this.drawOtherCubes(glut);
+
+        gl.glFlush();
+        gl.glPopMatrix();
+        }
 
     private void drawCoordinateSystem() {
         if (this.coordinateSystemEnabled) {
@@ -78,10 +109,6 @@ public class Exercise4 extends GLCanvas implements GLEventListener {
     }
 
 
-    private void lookAt() {
-        this.glu.gluLookAt(eyePoint.getX(), eyePoint.getY(), eyePoint.getZ(),
-                0, 0, 0, 0, 1, 0);
-    }
 
     private void setColor(int x, int y, int z) {
         float r = ((x + 1) * 100) % 256;
@@ -114,10 +141,10 @@ public class Exercise4 extends GLCanvas implements GLEventListener {
 
     private void drawAxis(int x, int y, int z, float red, float green, float blue) {
         gl.glBegin(gl.GL_LINE_LOOP);
-        gl.glColor3f(red, green, blue);
+        gl.glColor3d(red, green, blue);
         gl.glVertex3f(0f, 0f, 0f);
         gl.glVertex3f(x * 10f, y * 10f, z * 10f);
-        gl.glColor3f(255, 255, 255);
+        gl.glColor3d(255, 255, 255);
         gl.glEnd();
     }
 
@@ -139,7 +166,7 @@ public class Exercise4 extends GLCanvas implements GLEventListener {
     }
 
     public static void main(String[] args) {
-        Frame frame = new Frame("ruhender Drahtwuerfel");
+        Frame frame = new Frame("Drahtwürfel mit kleineren Würfeln");
         Exercise4 canvas = new Exercise4();
         frame.add(canvas);
         frame.addWindowListener(new WindowAdapter() {
