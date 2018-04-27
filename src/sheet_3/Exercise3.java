@@ -13,10 +13,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import static javafx.scene.input.KeyCode.LEFT;
+
 
 public class Exercise3 extends GLCanvas implements GLEventListener {
     private float rotate = 0;
     private int n = 4;
+    private int m = 4;
 
     public Exercise3() {
         this.addGLEventListener(this);        this.addGLEventListener(this);
@@ -32,6 +35,11 @@ public class Exercise3 extends GLCanvas implements GLEventListener {
                 } else if (e.getKeyChar() == '-') {
                     if (n > 0)
                         n -= 1;
+                } else if (e.getKeyCode() == KeyEvent.VK_UP) {
+                    if (m > 0)
+                        m -= 1;
+                } else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
+                    m += 1;
                 }
                 display();
             }
@@ -55,7 +63,7 @@ public class Exercise3 extends GLCanvas implements GLEventListener {
         //Drahtwürfel zeichnen
         gl.glPushMatrix();
         gl.glRotatef(rotate, 1, 0, 0);
-        this.pyramid(2.0f, 3.0f, this.n, 4);
+        this.pyramid(2.0f, 3.0f, this.n, this.m);
         this.drawAxis(1,0, 0, 255,0,0);
         this.drawAxis(0,1, 0, 0,255,0);
         this.drawAxis(0,0, 1, 0,0,255);
