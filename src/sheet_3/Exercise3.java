@@ -11,18 +11,29 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 
 import static javafx.scene.input.KeyCode.LEFT;
 
 
 public class Exercise3 extends GLCanvas implements GLEventListener {
+
+    /**
+     * KEYMAP:
+     * Drehen                       a, d
+     * Anzahl Ecken erhöhen         +
+     * Anzahl Ecken verringern      -
+     * Anzahl Segmente erhöhen      Pfeil oben
+     * Anzahl Segmente verringern   Pfeil unten
+     *
+     */
+
     private float rotate = 0;
     private int n = 4;
     private int m = 4;
+    public enum MODES {Stumpf, Pyramide};
+    private MODES mode = MODES.Pyramide;
+
 
     public Exercise3() {
         this.addGLEventListener(this);
@@ -39,10 +50,10 @@ public class Exercise3 extends GLCanvas implements GLEventListener {
                 } else if (e.getKeyChar() == '-') {
                     if (n > 0)
                         n -= 1;
-                } else if (e.getKeyCode() == KeyEvent.VK_UP) {
+                } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
                     if (m > 0)
                         m -= 1;
-                } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                } else if (e.getKeyCode() == KeyEvent.VK_UP) {
                     m += 1;
                 }
                 display();
@@ -61,6 +72,10 @@ public class Exercise3 extends GLCanvas implements GLEventListener {
         this.m = m;
     }
 
+    public void setMode(MODES mode) {
+        this.mode = mode;
+    }
+
     public void display(GLAutoDrawable gLDrawable) {
         gl = gLDrawable.getGL().getGL2();
         glu = new GLU();
@@ -73,7 +88,12 @@ public class Exercise3 extends GLCanvas implements GLEventListener {
         //Drahtwürfel zeichnen
         gl.glPushMatrix();
         gl.glRotatef(rotate, 1, 0, 0);
-        this.pyramid(2.0f, 3.0f, this.n, this.m);
+
+        if (this.mode == MODES.Pyramide)
+            this.pyramid(2.0f, 3.0f, this.n, this.m);
+        else
+            this.stumpf(2.0f, 1.0f, 2.0f, this.n);
+
         this.drawAxis(1, 0, 0, 255, 0, 0);
         this.drawAxis(0, 1, 0, 0, 255, 0);
         this.drawAxis(0, 0, 1, 0, 0, 255);
@@ -158,10 +178,26 @@ public class Exercise3 extends GLCanvas implements GLEventListener {
             }
         });
         panel.add(segments);
+        panel.add(new JLabel("Mode:"));
+        String[] modes = new String [] {"Stumpf", "Pyramide"};
+        JComboBox<String> mode = new JComboBox<String>(modes);
+        mode.setSelectedItem("Pyramide");
+        mode.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (mode.getSelectedItem().equals("Stumpf"))
+                    canvas.setMode(MODES.Stumpf);
+                else if (mode.getSelectedItem().equals("Pyramide"))
+                    canvas.setMode(MODES.Pyramide);
+                canvas.display();
+            }
+        });
+        panel.add(mode);
+
         for (Component c: panel.getComponents())
             c.setFont(new Font("Arial", Font.PLAIN, 18));
         frame.add(panel);
-        frame.setSize(new Dimension(600, 130));
+        frame.setSize(new Dimension(500, 150));
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         return frame;
     }
