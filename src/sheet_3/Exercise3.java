@@ -7,6 +7,9 @@ import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.gl2.GLUT;
 
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -22,14 +25,15 @@ public class Exercise3 extends GLCanvas implements GLEventListener {
     private int m = 4;
 
     public Exercise3() {
-        this.addGLEventListener(this);        this.addGLEventListener(this);
+        this.addGLEventListener(this);
+        this.addGLEventListener(this);
         this.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if(e.getKeyChar() == 'a') {
-                    rotate += 1;
+                if (e.getKeyChar() == 'a') {
+                    rotate += 2;
                 } else if (e.getKeyChar() == 'd') {
-                    rotate -= 1;
+                    rotate -= 2;
                 } else if (e.getKeyChar() == '+') {
                     n += 1;
                 } else if (e.getKeyChar() == '-') {
@@ -38,7 +42,7 @@ public class Exercise3 extends GLCanvas implements GLEventListener {
                 } else if (e.getKeyCode() == KeyEvent.VK_UP) {
                     if (m > 0)
                         m -= 1;
-                } else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
+                } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
                     m += 1;
                 }
                 display();
@@ -46,9 +50,16 @@ public class Exercise3 extends GLCanvas implements GLEventListener {
         });
     }
 
-    //nichts neues
     private GL2 gl;
     private GLU glu;
+
+    public void setN(int n) {
+        this.n = n;
+    }
+
+    public void setM(int m) {
+        this.m = m;
+    }
 
     public void display(GLAutoDrawable gLDrawable) {
         gl = gLDrawable.getGL().getGL2();
@@ -58,25 +69,24 @@ public class Exercise3 extends GLCanvas implements GLEventListener {
         gl.glLoadIdentity();
 
 
-
         glu.gluLookAt(5, 5, 5, 0, 0, 0, 0, 1, 0);
         //Drahtwürfel zeichnen
         gl.glPushMatrix();
         gl.glRotatef(rotate, 1, 0, 0);
         this.pyramid(2.0f, 3.0f, this.n, this.m);
-        this.drawAxis(1,0, 0, 255,0,0);
-        this.drawAxis(0,1, 0, 0,255,0);
-        this.drawAxis(0,0, 1, 0,0,255);
+        this.drawAxis(1, 0, 0, 255, 0, 0);
+        this.drawAxis(0, 1, 0, 0, 255, 0);
+        this.drawAxis(0, 0, 1, 0, 0, 255);
         gl.glPopMatrix();
         gl.glFlush();
     }
 
     private void drawAxis(int x, int y, int z, float red, float green, float blue) {
         gl.glBegin(gl.GL_LINE_LOOP);
-        gl.glColor3f(red,green,blue);
-        gl.glVertex3f(0f,0f,0f);
-        gl.glVertex3f(x*10f,y*10f,z*10f);
-        gl.glColor3f(255,255,255);
+        gl.glColor3f(red, green, blue);
+        gl.glVertex3f(0f, 0f, 0f);
+        gl.glVertex3f(x * 10f, y * 10f, z * 10f);
+        gl.glColor3f(255, 255, 255);
         gl.glEnd();
     }
 
@@ -84,12 +94,12 @@ public class Exercise3 extends GLCanvas implements GLEventListener {
         gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_LINE);
         gl.glBegin(GL2.GL_QUAD_STRIP);
 
-        for (int k = 0; k <= n; ++k){
+        for (int k = 0; k <= n; ++k) {
             // exp(i*(k/n*2*pi) = cos(k/n*2*pi) + i*sin(k/n*2*pi)
-            float xInS1 = (float) Math.cos(2*Math.PI/n*k);
-            float yInSi = (float) Math.sin(2*Math.PI/n*k);
-            gl.glVertex3f(xInS1 * rad1,  0,yInSi * rad1);
-            gl.glVertex3f(xInS1 * rad2, height,yInSi * rad2);
+            float xInS1 = (float) Math.cos(2 * Math.PI / n * k);
+            float yInSi = (float) Math.sin(2 * Math.PI / n * k);
+            gl.glVertex3f(xInS1 * rad1, 0, yInSi * rad1);
+            gl.glVertex3f(xInS1 * rad2, height, yInSi * rad2);
         }
 
         gl.glEnd();
@@ -100,8 +110,8 @@ public class Exercise3 extends GLCanvas implements GLEventListener {
         float lastRad = rad;
         for (int k = 1; k <= m; ++k) {
             gl.glPushMatrix();
-            gl.glTranslatef(0, (k - 1)*seg_height, 0);
-            float newRad = rad/height*(height - seg_height*k);
+            gl.glTranslatef(0, (k - 1) * seg_height, 0);
+            float newRad = rad / height * (height - seg_height * k);
             this.stumpf(lastRad, newRad, seg_height, n);
             lastRad = newRad;
             gl.glPopMatrix();
@@ -125,8 +135,39 @@ public class Exercise3 extends GLCanvas implements GLEventListener {
         gl.glMatrixMode(GL2.GL_MODELVIEW);
     }
 
+    public static JFrame createSettingsFrame(Exercise3 canvas) {
+        JFrame frame = new JFrame("Settings");
+        JPanel panel = new JPanel();
+        panel.add(new JLabel("Number of corners: "));
+        JSpinner corners = new JSpinner(new SpinnerNumberModel(4, 0, Integer.MAX_VALUE, 1));
+        corners.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                canvas.setN((int) corners.getValue());
+                canvas.display();
+            }
+        });
+        panel.add(corners);
+        panel.add(new JLabel("Number of Segments:"));
+        JSpinner segments = new JSpinner(new SpinnerNumberModel(4, 0, Integer.MAX_VALUE, 1));
+        segments.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                canvas.setM((int) segments.getValue());
+                canvas.display();
+            }
+        });
+        panel.add(segments);
+        for (Component c: panel.getComponents())
+            c.setFont(new Font("Arial", Font.PLAIN, 18));
+        frame.add(panel);
+        frame.setSize(new Dimension(600, 130));
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        return frame;
+    }
+
     public static void main(String[] args) {
-        Frame frame = new Frame("ruhender Drahtwuerfel");
+        Frame frame = new Frame("n-Eck Pyramide");
         Exercise3 canvas = new Exercise3();
         frame.add(canvas);
         frame.addWindowListener(new WindowAdapter() {
@@ -136,6 +177,11 @@ public class Exercise3 extends GLCanvas implements GLEventListener {
         });
         frame.setSize(640, 640);
         frame.setVisible(true);
+
+        JFrame settings = Exercise3.createSettingsFrame(canvas);
+        settings.setLocation((int) frame.getLocation().getX() + frame.getWidth() + 30, 30);
+        settings.setVisible(true);
+
         canvas.requestFocus();
     }
 }
