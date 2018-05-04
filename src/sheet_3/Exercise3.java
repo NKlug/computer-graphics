@@ -13,8 +13,6 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
 
-import static javafx.scene.input.KeyCode.LEFT;
-
 
 public class Exercise3 extends GLCanvas implements GLEventListener {
 
@@ -85,7 +83,6 @@ public class Exercise3 extends GLCanvas implements GLEventListener {
 
 
         glu.gluLookAt(5, 5, 5, 0, 0, 0, 0, 1, 0);
-        //Drahtwürfel zeichnen
         gl.glPushMatrix();
         gl.glRotatef(rotate, 1, 0, 0);
 
