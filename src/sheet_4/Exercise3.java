@@ -16,7 +16,7 @@ import java.awt.event.*;
 public class Exercise3 extends GLCanvas implements GLEventListener {
 
     private final float SCALE = 1f;
-    private double angle = Math.toRadians(60);
+    private double angle = Math.toRadians(35);
     private double speed = 10;
     private double y_0 = Math.sin(angle) * speed;
     private double x_0 = Math.cos(angle) * speed;
@@ -75,9 +75,9 @@ public class Exercise3 extends GLCanvas implements GLEventListener {
 
     private void drawSpeer(float y, float z, float angle) {
         gl.glPushMatrix();
-        gl.glRotatef(angle, 1, 0, 0);
         gl.glTranslatef(0, y * SCALE,
                 z * SCALE);
+        gl.glRotatef(angle, 1, 0, 0);
         gl.glScaled(1, 1, 10);
         glut.glutWireCube(0.05f);
         gl.glPopMatrix();
