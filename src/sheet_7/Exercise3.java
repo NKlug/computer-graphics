@@ -15,7 +15,6 @@ import com.jogamp.opengl.util.texture.TextureIO;
 import java.awt.Frame;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.InputStream;
@@ -26,6 +25,7 @@ public class Exercise3 {
   private static FPSAnimator animator;
 
   static class WinRenderer extends GLCanvas implements GLEventListener {
+
     private GL2 gl;
     private GLU glu;
     private Texture earthTexture;
@@ -33,10 +33,12 @@ public class Exercise3 {
     private Texture sunTexture;
 
     private float speed = 1;
+    private float phi = 0;
+    private float theta = 0;
     private boolean toggleCoordinates = false;
+    private Texture starsTexture;
 
-    public WinRenderer(GLCapabilities cap)
-    {
+    public WinRenderer(GLCapabilities cap) {
       super(cap);
       this.addKeyListener(new KeyAdapter() {
         @Override
@@ -46,6 +48,26 @@ public class Exercise3 {
             speed *= 2;
           } else if (e.getKeyChar() == '-') {
             speed *= 0.5;
+          } else if (e.getKeyChar() == 'a') {
+            phi -= 0.03;
+          } else if (e.getKeyChar() == 'd') {
+            phi += 0.03;
+          } else if (e.getKeyChar() == 'w') {
+            theta += 0.03;
+          } else if (e.getKeyChar() == 's') {
+            theta -= 0.03;
+          } else if (e.getKeyChar() == 'q') {
+            phi -= 0.03;
+            theta += 0.03;
+          } else if (e.getKeyChar() == 'e') {
+            phi += 0.03;
+            theta += 0.03;
+          } else if (e.getKeyChar() == 'y') {
+            phi -= 0.03;
+            theta -= 0.03;
+          } else if (e.getKeyChar() == 'x') {
+            phi += 0.03;
+            theta -= 0.03;
           } else if (e.getKeyChar() == ' ') {
             toggleCoordinates = !toggleCoordinates;
           }
@@ -55,42 +77,65 @@ public class Exercise3 {
 
     float time = 0.0f;
 
-    void forwardTime()
-    {
+    void forwardTime() {
       time += speed * (0.05f % 24 * 365);
     }
 
-    public void display(GLAutoDrawable gLDrawable)
-    {
+    public void display(GLAutoDrawable gLDrawable) {
       forwardTime();
       gl = gLDrawable.getGL().getGL2();
       glu = new GLU();
       final GLUT glut = new GLUT();
       gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
       gl.glLoadIdentity();
-      glu.gluLookAt(6, 0, 0, 0, 0, 0, 0, 0, 1);
+
+      gl.glColor3f(1f, 1f, 1f);
+      float r = 6f;
+      float x = (float) (r*Math.sin(theta) *Math.cos(phi));
+      float y = (float) (r*Math.sin(theta)*Math.sin(phi));
+      float z = (float) (r*Math.cos(theta));
+
+      float upX = (float) (-Math.cos(theta)*Math.cos(phi));
+      float upY = (float) (-Math.cos(theta)*Math.sin(phi));
+      float upZ = (float) Math.sin(theta);
+
+      glu.gluLookAt(x, y, z, 0, 0, 0, upX, upY, upZ);
 
       this.drawSun();
+      this.drawStars();
 
       gl.glPushMatrix();
-      gl.glRotatef(time / 24 / 365 * 360, 0,0,1);
-      gl.glTranslatef(3,0,0);
+      gl.glRotatef(time / 24 / 365 * 360, 0, 0, 1);
+      gl.glTranslatef(3, 0, 0);
 
-
-      gl.glRotatef(-23.44f, 1, 0,0);
+      gl.glRotatef(23.44f, 1, 0, 0);
       this.drawEarth();
 
       gl.glPushMatrix();
-      gl.glRotatef(23.44f -6f, 1, 0,0);
+      gl.glRotatef(-23.44f + 6f, 1, 0, 0);
       drawMoon();
       gl.glPopMatrix();
       gl.glPopMatrix();
       gl.glFlush();
     }
 
+    private void drawStars() {
+      gl.glPushMatrix();
+      GLUquadric sphere_quadric = glu.gluNewQuadric();
+      gl.glEnable(GL.GL_TEXTURE_2D);
+      starsTexture.bind(gl);
+      glu.gluQuadricTexture(sphere_quadric, true);
+      glu.gluQuadricDrawStyle(sphere_quadric, GLU.GLU_FILL);
+      glu.gluQuadricNormals(sphere_quadric, GLU.GLU_SMOOTH);
+      glu.gluSphere(sphere_quadric, 50f, 50, 50);
+      gl.glPopMatrix();
+    }
+
 
     private void drawAxis(int x, int y, int z, float red, float green, float blue) {
-      if (!toggleCoordinates) return;
+      if (!toggleCoordinates) {
+        return;
+      }
       gl.glBegin(gl.GL_LINE_LOOP);
       gl.glColor3d(red, green, blue);
       gl.glVertex3f(0f, 0f, 0f);
@@ -99,12 +144,12 @@ public class Exercise3 {
       gl.glEnd();
     }
 
-    private void drawEarth () {
+    private void drawEarth() {
       gl.glPushMatrix();
-      gl.glRotatef(time / 24f * 360, 0,0,1);
+      gl.glRotatef(time / 24f * 360, 0, 0, 1);
 
-      this.drawAxis(1,0,0,1,0,0);
-      this.drawAxis(0,0,1,0,1,0);
+      this.drawAxis(1, 0, 0, 1, 0, 0);
+      this.drawAxis(0, 0, 1, 0, 1, 0);
 
       GLUquadric sphere_quadric = glu.gluNewQuadric();
       gl.glEnable(GL.GL_TEXTURE_2D);
@@ -118,11 +163,11 @@ public class Exercise3 {
 
     private void drawMoon() {
       gl.glPushMatrix();
-      gl.glRotatef(2.5f * time, 0,0,1);
-      gl.glTranslatef(1f,0,0);
+      gl.glRotatef(time / 30 / 24 * 360, 0, 0, 1);
+      gl.glTranslatef(1f, 0, 0);
 
-      this.drawAxis(1,0,0,1,0,0);
-      this.drawAxis(0,0,1,0,1,0);
+      this.drawAxis(1, 0, 0, 1, 0, 0);
+      this.drawAxis(0, 0, 1, 0, 1, 0);
 
       GLUquadric sphere_quadric = glu.gluNewQuadric();
       gl.glEnable(GL.GL_TEXTURE_2D);
@@ -137,8 +182,8 @@ public class Exercise3 {
     private void drawSun() {
       gl.glPushMatrix();
 
-      this.drawAxis(1,0,0,1,0,0);
-      this.drawAxis(0,0,1,0,1,0);
+      this.drawAxis(1, 0, 0, 1, 0, 0);
+      this.drawAxis(0, 0, 1, 0, 1, 0);
 
       GLUquadric sphere_quadric = glu.gluNewQuadric();
       gl.glEnable(GL.GL_TEXTURE_2D);
@@ -150,45 +195,41 @@ public class Exercise3 {
       gl.glPopMatrix();
     }
 
-    public void init(GLAutoDrawable gLDrawable)
-    {
+    public void init(GLAutoDrawable gLDrawable) {
       gl = gLDrawable.getGL().getGL2();
       gl.glEnable(GL2.GL_DEPTH_TEST);
-      try
-      {
+      try {
         InputStream in = getClass().getClassLoader().getResourceAsStream("sheet_7/map.jpg");
         earthTexture = TextureIO.newTexture(in, true, "jpg");
         in = getClass().getClassLoader().getResourceAsStream("sheet_7/moon-map.jpg");
         moonTexture = TextureIO.newTexture(in, true, "jpg");
         in = getClass().getClassLoader().getResourceAsStream("sheet_7/sun-map.jpg");
         sunTexture = TextureIO.newTexture(in, true, "jpg");
-      }
-      catch (Exception e)
-      {
+        in = getClass().getClassLoader().getResourceAsStream("sheet_7/stars.png");
+        starsTexture = TextureIO.newTexture(in, true, "png");
+      } catch (Exception e) {
         e.printStackTrace();
       }
     }
 
     @Override
-    public void dispose(GLAutoDrawable drawable)
-    {
+    public void dispose(GLAutoDrawable drawable) {
 
     }
 
     public void reshape(GLAutoDrawable gLDrawable, int x, int y,
-                        int width, int height) {
+        int width, int height) {
       gl = gLDrawable.getGL().getGL2();
       glu = new GLU();
       gl.glViewport(0, 0, width, height);
       gl.glMatrixMode(GL2.GL_PROJECTION);
       gl.glLoadIdentity();
-      glu.gluPerspective(120, (float) width / (float) height, 1, 100);
+      glu.gluPerspective(80, (float) width / (float) height, 1, 100);
       gl.glMatrixMode(GL2.GL_MODELVIEW);
     }
   }
 
-  public static void main(String[] args)
-  {
+  public static void main(String[] args) {
     Frame frame = new Frame("texturierte Kugel");
     GLCapabilities cap = new GLCapabilities(null);
     cap.setDoubleBuffered(true);
@@ -200,8 +241,7 @@ public class Exercise3 {
     animator.setUpdateFPSFrames(fps * 2, System.out);
     frame.add(canvas);
     frame.addWindowListener(new WindowAdapter() {
-      public void windowClosing(WindowEvent e)
-      {
+      public void windowClosing(WindowEvent e) {
         animator.stop();
         System.exit(0);
       }
