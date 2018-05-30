@@ -8,7 +8,6 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUquadric;
-import com.jogamp.opengl.math.VectorUtil;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.gl2.GLUT;
 import com.jogamp.opengl.util.texture.Texture;
@@ -33,14 +32,15 @@ public class Exercise3 {
         private Texture moonTexture;
         private Texture sunTexture;
 
-        private float STEP_SIZE = 0.5f;
+        private float MOVE_STEP_SIZE = 0.5f;
+        private float ANGLE_STEP_SIZE = 0.05f;
 
         private float[] eyePoint = new float[]{6, 0, 0};
         private float[] centerPoint = subVec3(fv(), eyePoint, new float[]{1, 0, 0});
-        private float[] upVector = VEC3_UNIT_Z;
+        private float[] upVector;
 
         private float theta = 0;
-        private float phi = 0;
+        private float phi = (float) -Math.PI;
 
         float time = 0.0f;
         private float speed = 1;
@@ -49,6 +49,8 @@ public class Exercise3 {
 
         public WinRenderer(GLCapabilities cap) {
             super(cap);
+
+            moveView();
 
             this.addKeyListener(new KeyAdapter() {
                 @Override
@@ -59,19 +61,27 @@ public class Exercise3 {
                     } else if (e.getKeyChar() == '-') {
                         speed *= 0.5;
                     } else if (e.getKeyChar() == 'a') {
-                        relativeMoveY(-STEP_SIZE);
+                        relativeMoveY(-MOVE_STEP_SIZE);
                     } else if (e.getKeyChar() == 'd') {
-                        relativeMoveY(STEP_SIZE);
+                        relativeMoveY(MOVE_STEP_SIZE);
                     } else if (e.getKeyChar() == 'w') {
-                        relativeMoveX(STEP_SIZE);
+                        relativeMoveX(MOVE_STEP_SIZE);
                     } else if (e.getKeyChar() == 's') {
-                        relativeMoveX(-STEP_SIZE);
+                        relativeMoveX(-MOVE_STEP_SIZE);
                     } else if (e.getKeyChar() == ' ') {
-                        relativeMoveZ(STEP_SIZE);
+                        relativeMoveZ(MOVE_STEP_SIZE);
                     } else if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
-                        relativeMoveZ(-STEP_SIZE);
+                        relativeMoveZ(-MOVE_STEP_SIZE);
                     } else if (e.getKeyChar() == 'f') {
                         showCoordinates = !showCoordinates;
+                    } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                        phi -= ANGLE_STEP_SIZE;
+                    } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+                        phi += ANGLE_STEP_SIZE;
+                    } else if (e.getKeyCode() == KeyEvent.VK_UP) {
+                        theta += ANGLE_STEP_SIZE;
+                    } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                        theta -= ANGLE_STEP_SIZE;
                     }
                 }
             });
@@ -108,11 +118,23 @@ public class Exercise3 {
             System.out.println();
         }
 
+        private void moveView() {
+            float[] centerPointOffset = new float[]{
+                    (float) (Math.cos(theta) * Math.cos(phi)),
+                    (float) (Math.cos(theta) * Math.sin(phi)),
+                    (float) Math.sin(theta)};
+            this.centerPoint = addVec3(fv(), eyePoint, centerPointOffset);
+
+            this.upVector = new float[]{
+                    (float) (Math.cos(theta + Math.PI / 2) * Math.cos(phi)),
+                    (float) (Math.cos(theta + Math.PI / 2) * Math.sin(phi)),
+                    (float) Math.sin(theta + Math.PI / 2)};
+
+            printVectors();
+        }
+
         private float[] getRelativeXVector() {
-            printVectors();
-            float[] temp = subVec3(fv(), centerPoint, eyePoint);
-            printVectors();
-            return temp;
+            return subVec3(fv(), centerPoint, eyePoint);
         }
 
         private float[] getRelativeYVector() {
