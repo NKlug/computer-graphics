@@ -26,6 +26,16 @@ public class Exercise3 {
 
     static class WinRenderer extends GLCanvas implements GLEventListener {
 
+        /**
+         * KEYMAP:
+         * W A S D          Move the player
+         * Space            Move player up
+         * Shift            Move player down
+         * Arrow Keys       Move the camera
+         * f                Toggle Coordinate Axis
+         * + -              Increase/Decrease Speed
+         */
+
         private GL2 gl;
         private GLU glu;
         private Texture earthTexture;
@@ -40,7 +50,7 @@ public class Exercise3 {
         private float MOVE_STEP_SIZE = 0.5f;
         private float ANGLE_STEP_SIZE = 0.05f;
 
-        private float[] eyePoint = new float[]{12, 0, 0};
+        private float[] eyePoint = new float[]{15, 0, 0};
         private float[] centerPoint = subVec3(fv(), eyePoint, new float[]{1, 0, 0});
         private float[] upVector;
 
