@@ -32,10 +32,15 @@ public class Exercise3 {
         private Texture moonTexture;
         private Texture sunTexture;
 
+        private final float earthRadius = 0.6f;
+        private final float sunRadius = 2f;
+        private final float moonRadius = 0.2f;
+        private final float turningRadiusEarth = 10f;
+
         private float MOVE_STEP_SIZE = 0.5f;
         private float ANGLE_STEP_SIZE = 0.05f;
 
-        private float[] eyePoint = new float[]{6, 0, 0};
+        private float[] eyePoint = new float[]{12, 0, 0};
         private float[] centerPoint = subVec3(fv(), eyePoint, new float[]{1, 0, 0});
         private float[] upVector;
 
@@ -83,13 +88,7 @@ public class Exercise3 {
                     } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
                         theta -= ANGLE_STEP_SIZE;
                     }
-                }
-            });
-
-            this.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseMoved(MouseEvent e) {
-
+                    moveView();
                 }
             });
         }
@@ -172,8 +171,8 @@ public class Exercise3 {
             forwardTime();
             gl = gLDrawable.getGL().getGL2();
             glu = new GLU();
-            final GLUT glut = new GLUT();
             gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+            gl.glEnable(GL2.GL_DEPTH_TEST);
             gl.glLoadIdentity();
 
             gl.glColor3f(1f, 1f, 1f);
@@ -187,8 +186,7 @@ public class Exercise3 {
 
             gl.glPushMatrix();
             gl.glRotatef(time / 24 / 365 * 360, 0, 0, 1);
-            gl.glTranslatef(3, 0, 0);
-
+            gl.glTranslatef(turningRadiusEarth, 0, 0);
             gl.glRotatef(23.44f, 1, 0, 0);
             this.drawEarth();
 
@@ -238,7 +236,7 @@ public class Exercise3 {
             glu.gluQuadricTexture(sphere_quadric, true);
             glu.gluQuadricDrawStyle(sphere_quadric, GLU.GLU_FILL);
             glu.gluQuadricNormals(sphere_quadric, GLU.GLU_SMOOTH);
-            glu.gluSphere(sphere_quadric, 0.6f, 50, 50);
+            glu.gluSphere(sphere_quadric, earthRadius, 50, 50);
             gl.glPopMatrix();
         }
 
@@ -256,7 +254,7 @@ public class Exercise3 {
             glu.gluQuadricTexture(sphere_quadric, true);
             glu.gluQuadricDrawStyle(sphere_quadric, GLU.GLU_FILL);
             glu.gluQuadricNormals(sphere_quadric, GLU.GLU_SMOOTH);
-            glu.gluSphere(sphere_quadric, 0.3f, 50, 50);
+            glu.gluSphere(sphere_quadric, moonRadius, 50, 50);
             gl.glPopMatrix();
         }
 
@@ -272,7 +270,7 @@ public class Exercise3 {
             glu.gluQuadricTexture(sphere_quadric, true);
             glu.gluQuadricDrawStyle(sphere_quadric, GLU.GLU_FILL);
             glu.gluQuadricNormals(sphere_quadric, GLU.GLU_SMOOTH);
-            glu.gluSphere(sphere_quadric, 1f, 50, 50);
+            glu.gluSphere(sphere_quadric, sunRadius, 50, 50);
             gl.glPopMatrix();
         }
 
